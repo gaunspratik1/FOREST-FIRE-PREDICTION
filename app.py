@@ -1,6 +1,6 @@
 import pickle
 from flask import Flask,request, jsonify
-from mongo_pkg.mongo_fire import database_connect_mongoDB
+import pymongo
 
 app = Flask(__name__)
 model = pickle.load(open('model_classification.pkl', 'rb'))
@@ -22,13 +22,22 @@ def predict_api():
 @app.route('/predict_bulk_mongoDB',methods=['POST'])
 def predict_bulk_mongoDB():
 
+    client = pymongo.MongoClient("mongodb+srv://gaunspratik1:pymongo_1@cluster0.dczyoah.mongodb.net/?retryWrites=true&w=majority")
+    db2 = client['FIRE']
+    fire_coll = db2['fire_collection']
+    j = []
+
     data1 = request.json['data']
     limit = list(data1.values())[0]
-    bulk_data = database_connect_mongoDB(limit)
-    print(bulk_data)
-    output_bulk = model.predict(bulk_data)
+    print(limit)
+    for i in fire_coll.find().limit(limit):
+        raw_values = list(i.values())
+        raw_values.pop(0)
+        j.append(raw_values)
 
-    print(output_bulk)
+    print(j)
+    output_bulk = model.predict(j)
+
     #return jsonify(output_bulk)
     return str(output_bulk)
 

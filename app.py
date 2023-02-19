@@ -1,7 +1,5 @@
 import pickle
 from flask import Flask,request, jsonify
-from sql_pakage.sql import database_connect
-import pandas as pd
 from mongo_pkg.mongo_fire import database_connect_mongoDB
 
 app = Flask(__name__)
@@ -20,24 +18,6 @@ def predict_api():
     else:
         fire = 'Fire'
     return jsonify(fire)
-
-@app.route('/predict_bulk',methods=['POST'])
-def predict_bulk():
-
-    data1 = request.json['data']
-    limit = list(data1.values())[0]
-    bulk_data = database_connect(limit)
-    print(bulk_data)
-    v = []
-    for i in bulk_data:
-        c = list(i)
-        v.append(c)
-    print(v)
-    output_bulk = model.predict(v)
-
-    print(output_bulk)
-    #return jsonify(output_bulk)
-    return str(output_bulk)
 
 @app.route('/predict_bulk_mongoDB',methods=['POST'])
 def predict_bulk_mongoDB():
